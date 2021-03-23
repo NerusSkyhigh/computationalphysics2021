@@ -1,1 +1,1 @@
-Python code for VAriational method, not working.
+Python code for Variational method, not working.
