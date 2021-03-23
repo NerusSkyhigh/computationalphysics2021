@@ -1,3 +1,4 @@
 Materials for the exercise on the harmonic oscillator. 
 They may be helpful for the first points of Exercise one. 
 A C (complete, but not working) code and a Python (not complete) notebook.
+The gnuplot .gp files plots the levels obtained with the C code.
