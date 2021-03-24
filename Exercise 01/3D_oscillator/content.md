@@ -4,4 +4,4 @@
 
 # TODO
 
-Finish uploading the folders.
+Finish uploading the folders. 5000 directory is actually 6500
