@@ -4,4 +4,4 @@
 
 # TODO
 
-Finish uploading the folders. 5000 directory is actually 6500
+I will upload some useful plots of the wavefunctions we obtain
