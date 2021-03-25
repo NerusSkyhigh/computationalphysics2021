@@ -4,7 +4,6 @@
 2. C code, complete, correct and with good speed.
 3. .csv files containing the required energy levels for different mesh lengths.
 4. Plots of energy levels and difference from exact values.
-5. Folder for data analysis with variable mesh density
 
 # TODO
 
