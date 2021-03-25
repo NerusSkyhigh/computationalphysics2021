@@ -3,6 +3,7 @@
 
 # --- C compiled files ---
 *.exe
+*.lexe # Mi sono inventato questa estensione. Sta per "linux executable"
 
 # --- JUPYTER NOTEBOOK GARBAGE FILES ---
 

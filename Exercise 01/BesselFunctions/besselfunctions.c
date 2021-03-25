@@ -1,38 +1,57 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <float.h>
 
 double j(int l, double x)
 {
-  if(l==-1)
-  {
+  // Round zero to the closes non zero double
+  // This avoid division by zero but give a
+  // good approximation for the limit
+  if(x==0)
+    x = DBL_TRUE_MIN;
+
+  if(l < -1) {
+    printf("l should be >= 0\n");
+    exit(-1);
+  }
+
+  if(l==-1) {
     return cos(x)/x;
   } else if(l==0) {
     return sin(x)/x;
   } else {
     return (2*(l-1)+1)/x * j(l-1, x) - j(l-2, x);
   }
-  printf("Errore, la fuzione j(int n, double x) non dovrebbe arrivare qui");
 }
 
 double n(int l, double x)
 {
-  if(l==-1)
-  {
+  // Round zero to the closes non zero double
+  // This avoid division by zero but give a
+  // good approximation for the limit
+  if(x==0)
+    x = DBL_TRUE_MIN;
+
+  if(l < -1) {
+    printf("l should be >= 0\n");
+    exit(-1);
+  }
+
+  if(l==-1) {
     return sin(x)/x;
   } else if(l==0) {
     return -1*cos(x)/x;
   } else {
     return (2*(l-1)+1)/x * n(l-1, x) - n(l-2, x);
   }
-  printf("Errore, la fuzione n(int n, double x) non dovrebbe arrivare qui");
 }
 
 int main (int argc, char** argv) {
   /*
      We use the main function as a test routine
   */
-  double x = 1; // initial point
+  double x = 0; // initial point
   double dx = 0.01; // increment
   int l = atoi(argv[2]);
 
