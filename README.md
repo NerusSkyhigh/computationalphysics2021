@@ -5,9 +5,6 @@ Repository for the course Computational Physics help by Prof. Pederiva at unitn.
 
 1. 1D harmonic oscillator solution with Numerov method
 2. 3D harmonic oscillator with the same method
-
-## To verify
-
 3. Implementation of the recursive formulas for the Bessel functions
 4. Rescaling of the problem units
 
