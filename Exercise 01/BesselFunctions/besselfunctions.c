@@ -6,7 +6,7 @@
 double j(int l, double x)
 {
   // Round zero to the closes non zero double
-  // This avoid division by zero but give a
+  // This avoids division by zero but gives a
   // good approximation for the limit
   if(x==0)
     x = DBL_TRUE_MIN;
@@ -28,7 +28,7 @@ double j(int l, double x)
 double n(int l, double x)
 {
   // Round zero to the closes non zero double
-  // This avoid division by zero but give a
+  // This avoids division by zero but gives a
   // good approximation for the limit
   if(x==0)
     x = DBL_TRUE_MIN;
