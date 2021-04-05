@@ -7,9 +7,6 @@ Repository for the course Computational Physics help by Prof. Pederiva at unitn.
 2. 3D harmonic oscillator with the same method
 3. Implementation of the recursive formulas for the Bessel functions
 4. Rescaling of the problem units
-
-## To do
-
-6. A mathematical proof
-7. Modification of Numerov code for interatomic potential and calculation of the phase shift
-8. Calculation of the cross section
+5. A mathematical proof
+6.  Modification of Numerov code for interatomic potential and calculation of the phase shift
+7.  Calculation of the cross section
