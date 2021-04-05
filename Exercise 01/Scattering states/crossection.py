@@ -8,28 +8,22 @@ import time
 
 # Setting some initial parameters 
 
-Nx = 8000 #number of mesh points
+Nx = 2000 #number of mesh points
 dE = 0.001 # energy step
 lmax = 7 # Maximum value of l
-L = 30.0 # Mesh length
+L = 20.0 # Mesh length
 deltax = L / Nx # mesh spacing
-#fac = 0.03528
-fac = 0.02799
+fac = 0.03528
 rmax = 5.0
-Emin = dE
 xmin = 0.5
 
 x = np.arange(xmin,deltax*Nx,deltax)
-E = np.arange(0.02, 0.59, dE)
+E = np.arange(0.01, 0.59, dE)
 
 #POTENTIAL FUNCTION
 
 @njit
 def potential(r, a):
-
-    if r == 0:
-
-         r = 1E-30;
     
     t1 = 1.0 / pow(r, 12);
     t2 = 1.0 / pow(r, 6);
@@ -98,14 +92,17 @@ def bessn(l, x):
 
 @njit
 def phaseshift(n1, n2, l, psi1, psi2, Energy):
+    
+    r1 = deltax * n1 + xmin
+    r2 = deltax * n2 + xmin
 
-    Kbig = ( psi1 * (deltax * n2 + xmin) ) / ( psi2 * (deltax * n1 + xmin) );
+    Kbig = ( psi1 * r2 ) / ( psi2 * r1 );
     Ksmall = m.sqrt(Energy / fac);
 
-    num1 = Kbig * bessj(l, Ksmall * (deltax * n2 + xmin));
-    num2 = bessj(l, Ksmall * (deltax * n1 + xmin) );
-    den1 = Kbig * bessn(l, Ksmall * (deltax * n2 + xmin));
-    den2 = bessn(l, Ksmall * (deltax * n1 + xmin) );
+    num1 = Kbig * bessj(l, Ksmall * r2);
+    num2 = bessj(l, Ksmall * r1);
+    den1 = Kbig * bessn(l, Ksmall * r2);
+    den2 = bessn(l, Ksmall * r1 );
     phsh = m.atan( (num1 - num2) / (den1 - den2) );
 
     return phsh
@@ -120,6 +117,7 @@ def main():
     #Vectors for psi and cross section results
     psi = np.zeros(Nx)
     cross = np.zeros(len(E))
+    shifts = np.zeros((lmax, len(E)))
     phasematr = np.zeros((lmax, len(E)))
     
     l = 3
@@ -136,10 +134,13 @@ def main():
             
                 psi[i] = numerov(psi[i-2], psi[i-1], i, En, l);
           
+            lam = 2 * m.pi / m.sqrt( En / fac)
             N1 = int(15/ deltax)
-            N2 = N1 + 100
+            N2 = N1 + int( lam / (4 * deltax ) )
         
             shift = phaseshift(N1, N2, l, psi[N1], psi[N2], En);
+        
+            shifts[l,j] = shift 
         
             phasematr[l,j] = pow(m.sin(shift),2) * (2 * l + 1) * ( (4 * m.pi) / (En / fac) )
             
@@ -148,29 +149,44 @@ def main():
         
         j +=1
         
-    return cross, phasematr
+    return cross, phasematr, shifts
 
 
 start = time.time()
-crossection, phasematrix = main()
+crossection, phasematrix, shifts = main()
 crossection = (3.18)**2 * crossection
 end = time.time()
 
 print("The calculation took {} seconds".format(end-start))
 
-fig = plt.figure()
+
+# fig = plt.figure()
+# #plt.plot(E, shifts[0,:], linewidth = 1, color='green')
+# #plt.plot(E, shifts[1,:], linewidth = 1, color='yellow')
+# #plt.plot(E, shifts[2,:], linewidth = 1, color='cyan')
+# #plt.plot(E, shifts[3,:], linewidth = 1, color='magenta')
+# plt.plot(E, phasematrix[4,:], linewidth = 1, color='black')
+# plt.plot(E, phasematrix[5,:], linewidth = 1, color='red')
+# plt.plot(E, phasematrix[6,:], linewidth = 1, color='blue')
+# plt.title("Phase Shifts")
+# plt.xlabel("E")
+# plt.ylabel(r"$\phi_l$")
+# plt.savefig('shifts.png', dpi=600)
+
+
+fig1 = plt.figure()
 plt.plot(E, phasematrix[0,:]+phasematrix[1,:]+phasematrix[2,:]+phasematrix[3,:], linewidth = 1, color='green')
 plt.plot(E, phasematrix[4,:], linewidth = 1, color='black')
 plt.plot(E, phasematrix[5,:], linewidth = 1, color='red')
 plt.plot(E, phasematrix[6,:], linewidth = 1, color='blue')
 plt.title("Phase Shifts")
 plt.xlabel("E")
-plt.ylabel(r"$\phi_l$")
-plt.savefig('shifts.png', dpi=600)
+plt.ylabel(r"$\sigma_l$")
+plt.savefig('Individual Cross Sections.png', dpi=600)
 
 fig2 = plt.figure()
 plt.plot(E, crossection, linewidth = 1, color='black')
-plt.title("Cross Section")
+plt.title("Total Cross Section")
 plt.xlabel("E")
 plt.ylabel(r"$\sigma_{tot}$")
 plt.savefig('crossec.png', dpi=600)
