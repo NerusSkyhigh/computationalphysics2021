@@ -7,11 +7,13 @@
 
  // Global variables
 
-double deltaE = 0.00001; //Energy increment, set to 10^-5 for final simulation.
+int Nx = 3000; // Number of points in mesh
+double deltaE = 0.0001; //Energy increment, set to 10^-5 for final simulation.
 double L = 20.; // lunghezza mesh
-int Nx = 2000; // Number of points in mesh
 double deltax; // Mesh spacing
 double fac = 0.03528; // hbar^2 / 2m in units of sigma and epsilon
+double rmax = 5.0; // maximum r for the potential
+double xmin = 0.5; // mesh starting point
 
 // POTENTIAL FUNCTION
 // CONTAINS LENNARD JONES INTERATOMIC TERM AND ANGULAR MOMENTUM
@@ -21,9 +23,9 @@ double potential(double r, int a)
     double p;
     double t1, t2, lenn;
 
-    if(r == 0 ){
+    if(r > rmax ){
 
-      r = deltax;
+      lenn = 0;
 
     }else{
 
@@ -66,16 +68,19 @@ double numerov(double psi1, double psi2, int ind, double En, int ang)
 
 double phaseshift(int n1, int n2, int l, double psi1, double psi2, double Energy)
 {
-    double Kbig, Ksmall;
+    double Kbig, Ksmall, r1, r2;
     double num1, num2, den1, den2, phsh;
 
-    Kbig = ( psi1 * (deltax * n2) ) / ( psi2 * (deltax * n1) );
+    r1 = deltax * n1 + xmin;
+    r2 = deltax * n2 + xmin;
+
+    Kbig = ( psi1 * r2 ) / ( psi2 * r1 );
     Ksmall = sqrt(Energy / fac);
 
-    num1 = Kbig * besselj(l, Ksmall * (deltax * n2));
-    num2 = besselj(l, Ksmall * (deltax * n1) );
-    den1 = Kbig * besseln(l, Ksmall * (deltax * n2));
-    den2 = besseln(l, Ksmall * (deltax * n1) );
+    num1 = Kbig * besselj(l, Ksmall * r2);
+    num2 = besselj(l, Ksmall * r1 );
+    den1 = Kbig * besseln(l, Ksmall * r2);
+    den2 = besseln(l, Ksmall * r1 );
     phsh = atan( (num1 - num2) / (den1 - den2) );
 
     return phsh;
@@ -88,10 +93,9 @@ int main()
 {
     double psi[Nx]; // Vector for psi
     int i, l, j, N1, N2;
-    double shift, k, En;
-    double valatt= 1., valprec=0.;
-    double zero, point1,point2, b, crs;
-    int lmax = 6;
+    double shift, k, En, lam;
+    double b, crs;
+    int lmax = 7;
     char filename[20];
     FILE *fp;
 
@@ -99,7 +103,7 @@ int main()
 
     fp = fopen("CrossSection.csv", "w+"); //Open file
 
-    for (En = deltaE; En < 0.59 ; En+= deltaE) {
+    for (En = 0.01; En < 0.59 ; En+= deltaE) {
 
       crs = 0.;
 
@@ -117,23 +121,26 @@ int main()
 
         }
 
-          N1 = 1710;
-          N2 = 1720;
+          lam = (2 * M_PI) / sqrt(En / fac);
+          N1 = (int) 5 / deltax;
+          N2 = N1 + (int) (lam / (4 * deltax) );
 
           shift = phaseshift(N1, N2, l, psi[N1], psi[N2], En);
 
           //printf("%d \t %d \t %lf\n",N1,N2, shift);
 
           crs += pow(sin(shift),2) * (2*l+1) * ( (4 * M_PI) / (En / fac) );
-
+          //crs = crs * pow(3.18, 2);
       }
 
-      printf("%lf\n",crs);
-      fprintf(fp, "%lf\n",crs);
+      // printf("%lf, %lf\n", En, crs * pow(3.18, 2));
+      fprintf(fp, "%lf, %lf\n", En, crs * pow(3.18, 2));
 
     }
 
       fclose(fp);
+
+      system("gnuplot -p crossplot.gp");
 
     return 0;
 }
