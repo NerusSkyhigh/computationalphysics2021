@@ -73,7 +73,7 @@ double numerov(double psi1, double psi2, int ind, double En)
 int main()
 {
   double psi[Nx]; // Vector for psi (Mesh)
-  int i, n, j; // various indices
+  int i, n; // various indices
   double rat, Eexact;
   double Ener = Emin;
 
@@ -87,7 +87,6 @@ int main()
   int nmax = 5;
 
   for(n=0; n< nmax; n++){
-    j = 0;
     rat = 1;
 
     // Initial conditions are evaluated by taking an
