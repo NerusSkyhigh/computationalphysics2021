@@ -12,3 +12,6 @@ Repository for the course Computational Physics help by Prof. Pederiva at unitn.
 7.  Calculation of the cross section
 
 ## Exercise 2: Mean Field Methods and Hartree Fock
+
+
+<!-- https://compphys.go.ro/quantum-scattering/ -->
