@@ -1,4 +1,3 @@
-
 import math as m
 import numpy as np
 #import matplotlib.pyplot as plt 
@@ -7,10 +6,10 @@ import scipy.linalg as la
 
 Z = 2 # For Helium
 
-alfa = np.array([13.00773, 1.962079, 0.444529, 0.1219492]) # DA CAMBIAREEEEEEEEE
+alfa = np.array([14.899983, 2.726485, 0.757447, 0.251390] ) # DA CAMBIAREEEEEEEEE
 
-a = 0.001
-delta = 0.001
+a = 0.09
+delta = 0.000000000000001
 
 
 # Computes the single particle, direct and exchange integrals with given orbitals
@@ -28,8 +27,8 @@ def integrals(alfa):
         
         while j <= i:
             
-            H_mat[i,j] =  3 * (alfa[i] * alfa[j] * m.pi**(3.0/2.0) ) / (( alfa[i]                                        
-                            + alfa[j])**(5.0/2.0) ) - Z * 2 * m.pi / (alfa[i] + alfa[j])
+            H_mat[i,j] =  2 * ( 3 * (alfa[i] * alfa[j] * m.pi**(3.0/2.0) ) / (( alfa[i]                                        
+                            + alfa[j])**(5.0/2.0) ) - Z * 2 * m.pi / (alfa[i] + alfa[j]) )
             
             H_mat[j,i] = H_mat[i,j]
             
@@ -102,9 +101,9 @@ def integrals(alfa):
     return H_mat, Pot_mat, S
 
 
-# Building the Fock Matrix, representing the Fock operator PROBLEMS 
+# Building the Fock Matrix, representing the Fock operator  
 
-#@njit
+@njit
 def fock(H, P, C, C_old):
     
     F = np.zeros((4,4))
@@ -117,11 +116,13 @@ def fock(H, P, C, C_old):
             for r in range(0,4,1):
                 for s in range(0,4,1):
                     
-                    twob += a * C[r] * C[s] * ( P[4*q + p, 4*s + r] - P[4*s +p, 4*q +r] ) 
-                    + (1 - a) * C_old[r] * C_old[s] * ( P[4*q + p, 4*s + r] - P[4*s +p, 4*q +r] ) 
+                    P_term = P[4*q + p, 4*s + r] - P[4*s +p, 4*q +r]
+                    
+                    C_term = a * C[p,r] * C[q,s] + (1 - a) * C_old[p,r] * C_old[q,s]
+                    
+                    twob += C_term * P_term
             
             F[p,q] = H[p,q] + twob
-                    
                     
     return F 
     
@@ -172,9 +173,10 @@ def iteration(H, P, S):
     i = 0
     
     Eoldt = -100
-    Enewt = -1
+    Enewt = -90
+    diff = 100
     
-    while (abs(Enewt - Eoldt) > delta):
+    while (diff > delta):
         
         if i == 0 :
             
@@ -193,7 +195,9 @@ def iteration(H, P, S):
         
         Enewt = Enew[0]
         
-        print(i)
+        diff = abs(Enewt - Eoldt)
+        
+        print(i, Enewt)
         
         i += 1
         
@@ -205,9 +209,5 @@ def iteration(H, P, S):
 
 H, P, S = integrals(alfa) 
     
-# Set initial values for the vector of the coefficients 
-
 Enew, Cnew, F, C_old = iteration(H, P, S)
-    
 
-        
