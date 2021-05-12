@@ -13,5 +13,14 @@ Repository for the course Computational Physics help by Prof. Pederiva at unitn.
 
 ## Exercise 2: Mean Field Methods and Hartree Fock
 
+1. Calculation of Hydrogen ground state via variational procedure
+2. Graphical representation of Hydrogen WF and electronic density
+3. Calculation of Helium ground state energy via Hartree-Fock method.
 
-<!-- https://compphys.go.ro/quantum-scattering/ -->
+# TO DO
+
+1. Graphical representation of Helium WF and electronic density
+2. Berillium ground state with contractions
+3. Berillium ground state without contraction
+4. Graphical representation of Berillium WFs and electronic densities
+
