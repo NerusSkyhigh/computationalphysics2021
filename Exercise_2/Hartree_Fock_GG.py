@@ -6,10 +6,10 @@ import scipy.linalg as la
 
 Z = 2 # For Helium
 
-alfa = np.array([14.899983, 2.726485, 0.757447, 0.251390] )
+ALFA = np.array([14.899983, 2.726485, 0.757447, 0.251390] )
 
-a = 0.01
-delta = 0.0001
+MIX_COEFF = 0.01
+DELTA = 0.0001
 
 
 # Computes the single particle, direct and exchange integrals with given orbitals
@@ -65,23 +65,26 @@ def integrals(alfa):
 # Building the Fock Matrix, representing the Fock operator
 def fock(H, P, C, C_old):
     F = np.zeros((4,4))
+    G = np.zeros((4,4))
 
-    DensMat = C @ C.transpose()
-    DensMat_old = C_old @ C_old.transpose()
+    DensMat = 2*C @ C.transpose()
+    DensMat_old = 2*C_old @ C_old.transpose()
 
-    C = a * DensMat + (1-a)*DensMat_old
+    C = MIX_COEFF * DensMat + (1-MIX_COEFF)*DensMat_old
+
 
     for p in range(0, 4):
         for q in range(0, 4):
-            twob = 0.0
+            #twob = 0.0
 
             for r in range(0, 4):
                 for s in range(0, 4):
                     P_term = P[4*q + p, 4*s + r] - 0.5*P[4*s +p, 4*q +r]
 
-                    twob += C[r, s] * P_term
+                    #twob +=  C[r, s] * P_term
+                    G[p, q] += C[r, s] * P_term
 
-            F[p,q] = H[p,q] + twob
+            F[p,q] = H[p,q] + G[p, q] #+ twob
 
     return F
 
@@ -132,10 +135,10 @@ def iteration(H, P, S):
     Enewt = -90
     diff = 100
 
-    C = np.zeros([4, 2])
+    C = np.zeros([4, 1])
     C_old = C
 
-    while (diff > delta):
+    while (diff > DELTA):
         Eoldt = Enewt
 
         F = fock(H, P, C, C_old)
@@ -143,7 +146,8 @@ def iteration(H, P, S):
         Enew, Cnew = diagonalisation(F, S)
 
         C_old = C
-        C = np.column_stack(( Cnew[:, 0], Cnew[:, 0]))
+        #C = np.column_stack(( Cnew[:, 0], Cnew[:, 0]))
+        C = np.array([Cnew[:, 0]]).T
 
         Enewt = Enew[0]
 
@@ -156,10 +160,10 @@ def iteration(H, P, S):
             break
 
 
-    return Enew, Cnew, F, C_old
+    return Enew, Cnew, F, C_old, C
 
 
 
 # Compute matrices with dedicated function
-H, P, S = integrals(alfa)
-Enew, Cnew, F, C_old = iteration(H, P, S)
+H, P, S = integrals(ALFA)
+Enew, Cnew, F, C_old, C = iteration(H, P, S)
