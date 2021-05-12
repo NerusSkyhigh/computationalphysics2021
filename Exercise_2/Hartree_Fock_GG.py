@@ -19,7 +19,7 @@ def integrals(alfa):
     H_mat = np.zeros((4,4))
     for i in range(0, 4):
         for j in range(0, i+1):
-            H_mat[i,j] = H_mat[j,i] =2*( 3 * (alfa[i] * alfa[j] * m.pi**(3.0/2.0) ) / \
+            H_mat[i,j] = H_mat[j,i] =( 3 * (alfa[i] * alfa[j] * m.pi**(3.0/2.0) ) / \
                                        (( alfa[i]+ alfa[j])**(5.0/2.0) ) \
                                      - Z * 2 * m.pi / (alfa[i] + alfa[j]) )
 
@@ -37,12 +37,8 @@ def integrals(alfa):
                 for s in range(0, r+1):
                     if (4*s+r <= 4*q+p):
                         # Check pdf "integrals.pdf"
-                        # Pot_mat[4*q+p, 4*s+r] = 2/m.sqrt(m.pi) * \
-                        #     (m.sqrt(alfa[p] + alfa[q]) * m.sqrt(alfa[r] + alfa[s]) / \
-                        #       m.sqrt(alfa[p] + alfa[q] + alfa[r] + alfa[s])) \
-                        #       * S[p,q] * S[r,s]
                         Pot_mat[4*q+p, 4*s+r] = 2/m.sqrt(m.pi) * \
-                            ( m.sqrt(alfa[p] + alfa[q]) * m.sqrt(alfa[r] + alfa[s]) / \
+                            (m.sqrt(alfa[p] + alfa[q]) * m.sqrt(alfa[r] + alfa[s]) / \
                               m.sqrt(alfa[p] + alfa[q] + alfa[r] + alfa[s])) \
                               * S[p,q] * S[r,s]
 
@@ -85,7 +81,7 @@ def fock(H, P, C, C_old):
 
                     twob += C[r, s] * P_term
 
-            F[p,q] = 0.5*H[p,q] + twob
+            F[p,q] = H[p,q] + twob
 
     return F
 
