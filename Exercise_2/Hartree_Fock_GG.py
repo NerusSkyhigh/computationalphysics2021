@@ -31,22 +31,20 @@ def integrals(alfa):
 
     # 2-BODY POTENTIAL
     Pot_mat = np.zeros((16,16))
-    for p in range(0, 4, 1):
-        for q in range(0, p+1, 1):
-            for r in range(0, 4, 1):
-                for s in range(0, r+1, 1):
+    for p in range(0, 4):
+        for q in range(0, p+1):
+            for r in range(0, 4):
+                for s in range(0, r+1):
                     if (4*s+r <= 4*q+p):
                         # Check pdf "integrals.pdf"
+                        # Pot_mat[4*q+p, 4*s+r] = 2/m.sqrt(m.pi) * \
+                        #     (m.sqrt(alfa[p] + alfa[q]) * m.sqrt(alfa[r] + alfa[s]) / \
+                        #       m.sqrt(alfa[p] + alfa[q] + alfa[r] + alfa[s])) \
+                        #       * S[p,q] * S[r,s]
                         Pot_mat[4*q+p, 4*s+r] = 2/m.sqrt(m.pi) * \
-                            (m.sqrt(alfa[p] + alfa[q]) * m.sqrt(alfa[r] + alfa[s]) / \
+                            ( m.sqrt(alfa[p] + alfa[q]) * m.sqrt(alfa[r] + alfa[s]) / \
                               m.sqrt(alfa[p] + alfa[q] + alfa[r] + alfa[s])) \
                               * S[p,q] * S[r,s]
-
-                        # Pot_mat[4*q+p, 4*s+r] = m.pi**(5.0/2.0) / (4 * alfa[p]
-                        #  * alfa[q] * alfa[r] * alfa[s]) * (m.sqrt(alfa[p] + alfa[q])
-                        #  * m.sqrt(alfa[r] + alfa[s]) / m.sqrt(alfa[p] + alfa[q] + alfa[r]
-                        #  + alfa[s])) * S[p,q] * S[r,s]
-
 
 
     # Now we must assign a value to the missing elements in the "upper part"
