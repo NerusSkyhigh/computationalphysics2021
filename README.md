@@ -17,7 +17,7 @@ Repository for the course Computational Physics help by Prof. Pederiva at unitn.
 2. Graphical representation of Hydrogen WF and electronic density
 3. Calculation of Helium ground state energy via Hartree-Fock method.
 
-# TO DO
+### TO DO
 
 1. Graphical representation of Helium WF and electronic density
 2. Berillium ground state with contractions
