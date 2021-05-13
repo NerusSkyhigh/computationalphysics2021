@@ -282,18 +282,19 @@ def GT2(x, eigvec, alfa):
     return (Gdr(x, eigvec[0], alfa[0]) + Gdr(x, eigvec[1], alfa[1]) \
         + Gdr(x, eigvec[2], alfa[2]) + Gdr(x, eigvec[3], alfa[3]) )**2
 
-r = np.arange(0,5,0.01)
+r = np.arange(0,4,0.01)
 
 # Plot the gaussian, the total wavefunction and the exact result
-
 fig = plt.figure()
-plt.plot(r, -Gdr(r, Cnew[0,0], alfa[0]), label="Gaussian 1")
-plt.plot(r, -Gdr(r, Cnew[1,0], alfa[1]), label = "Gaussian 2")
-plt.plot(r, -Gdr(r, Cnew[2,0], alfa[2]), label = "Gaussian 3")
-plt.plot(r, -Gdr(r, Cnew[3,0], alfa[3]), label = "Gaussian 4")
+plt.plot(r, -Gdr(r, Cnew[0,0], alfa[0]), label=r"Gaussian 1; $\alpha$="+str(alfa[0]))
+plt.plot(r, -Gdr(r, Cnew[1,0], alfa[1]), label=r"Gaussian 2; $\alpha$="+str(alfa[1]))
+plt.plot(r, -Gdr(r, Cnew[2,0], alfa[2]), label=r"Gaussian 3; $\alpha$="+str(alfa[2]))
+plt.plot(r, -Gdr(r, Cnew[3,0], alfa[3]), label=r"Gaussian 4; $\alpha$="+str(alfa[3]))
 plt.plot(r, -GT(r, Cnew[:,0], alfa), label = "GTO Orbital")
 plt.legend()
 plt.grid()
+plt.xlabel(r"Distance $[a_0]$")
+plt.ylabel(r"WF $|\psi(r)|$")
 plt.title("Orbitals")
 plt.savefig("Gaussians_Helium.png", dpi=300)
 
@@ -301,6 +302,8 @@ plt.savefig("Gaussians_Helium.png", dpi=300)
 
 fig = plt.figure()
 plt.plot(r, GT2(r, Cnew[:,0], alfa), label="Density")
+plt.xlabel(r"Distance $[a_0]$")
+plt.ylabel(r"$\rho$")
 plt.legend()
 plt.grid()
 plt.title("Helium Electronic Density")
