@@ -8,7 +8,7 @@ Z = 4 # For Berillium
 
 # # Coefficients for 2G expansion
 
-# alfa = np.array([[0.1153566907E+02, 0.2053343279E+01], 
+# alfa = np.array([[0.1153566907E+02, 0.2053343279E+01],
 #                   [0.5081630247E+00, 0.1288835617E+00]])
 
 # Co = np.array([[0.4301284983E+00, 0.6789135305E+00],
@@ -16,7 +16,7 @@ Z = 4 # For Berillium
 
 # # Coefficients for 3G expansion
 
-# alfa = np.array([[0.3016787069E+02, 0.5495115306E+01, 0.1487192653E+01], 
+# alfa = np.array([[0.3016787069E+02, 0.5495115306E+01, 0.1487192653E+01],
 #                   [0.1314833110E+01, 0.3055389383E+00,  0.9937074560E-01]])
 
 # Co = np.array([[0.1543289673E+00, 0.5353281423E+00, 0.4446345422E+00],
@@ -32,7 +32,7 @@ Co =  np.array([[0.5675242080E-01, 0.2601413550E+00, 0.5328461143E+00, 0.2916254
 
 # Coefficients for 5G expansion
 
-# alfa = np.array([[0.1531054580E+03, 0.2805617168E+02, 0.7836289220E+01, 0.2675605246E+01, 0.1008268481E+01], 
+# alfa = np.array([[0.1531054580E+03, 0.2805617168E+02, 0.7836289220E+01, 0.2675605246E+01, 0.1008268481E+01],
 #                   [0.6660499143E+01, 0.1365485848E+01, 0.4351816281E+00, 0.1691742165E+00, 0.7206945827E-01] ])
 
 # Co = np.array([[0.2214055312E-01, 0.1135411520E+00, 0.3318161484E+00, 0.4825700713E+00, 0.1935721966E+00],
@@ -40,7 +40,7 @@ Co =  np.array([[0.5675242080E-01, 0.2601413550E+00, 0.5328461143E+00, 0.2916254
 
 # # Coefficients for 6G expansion
 
-# alfa = np.array([[0.3128704937E+03, 0.5736446253E+02, 0.1604850940E+02, 0.5513096119E+01, 0.2140896553E+01, 0.8817394283E+00 ], 
+# alfa = np.array([[0.3128704937E+03, 0.5736446253E+02, 0.1604850940E+02, 0.5513096119E+01, 0.2140896553E+01, 0.8817394283E+00 ],
 #                   [0.1363324744E+02, 0.2698375464E+01, 0.8386530829E+00, 0.3226600698E+00, 0.1401314882E+00, 0.6423251387E-01] ])
 
 # Co = np.array([[0.9163596281E-02, 0.4936149294E-01, 0.1685383049E+00, 0.3705627997E+00, 0.4164915298E+00, 0.1303340841E+00],
@@ -59,15 +59,15 @@ def integrals(alfa):
     # SINGLE PARTICLE HAMILTONIAN  (one electron only)
 
     H_mat = np.zeros((dim,dim))
-    
+
     for i in range(0,dim):
        for j in range(0,dim):
            for k in range(0,ncontr):
                for l in range(0,ncontr):
-                   
+
                   H_mat[i,j] += Co[i,k] * Co[j,l] * ( 3 * (alfa[i,k] * alfa[j,l] \
                             * mt.pi**(3.0/2.0) ) / (( alfa[i,k] +  alfa[j,l])**(5.0/2.0) ) \
-                                                     - Z*2*mt.pi/(alfa[i,k]+alfa[j,l])) 
+                                                     - Z*2*mt.pi/(alfa[i,k]+alfa[j,l]))
 
     # OVERLAP MATRIX
 
@@ -77,7 +77,7 @@ def integrals(alfa):
         for j in range(0,dim):
             for k in range(0,ncontr):
                 for l in range(0,ncontr):
-                    
+
                    S[i,j] += Co[i,k]*Co[j,l]*(mt.pi / (alfa[i,k] \
                                                    + alfa[j,l] ) )**(3.0/2.0)
 
@@ -93,10 +93,10 @@ def integrals(alfa):
                         for o in range(0, dim):
                             for p in range(0, dim):
                                 for q in range(0, dim):
-                    
+
                                     Exch_mat[dim*i+j, dim*k+l] += Co[i,n]*Co[j,o]*Co[k,p]*Co[l,q]*\
                                     (2 * mt.pi**(5.0/2.0)) / ((alfa[i,n] + alfa[j,o]) * (alfa[k,p] + alfa[l,q]) \
-                                          * mt.sqrt(alfa[i,n] + alfa[j,o] + alfa[k,p] + alfa[l,q] )) 
+                                          * mt.sqrt(alfa[i,n] + alfa[j,o] + alfa[k,p] + alfa[l,q] ))
 
     return H_mat, S, Exch_mat
 
@@ -125,7 +125,7 @@ def densitymatrix(P, C):
 
             P_old[r,s] = P[r, s]
             P[r,s] = 0
-            
+
             for k in range(0, int(Nelec/2)):
 
                 P[r,s] += C[r,k] * C[s,k]
@@ -169,12 +169,12 @@ def fock(H, P, Exch): # Make Fock Matrix
 
 def energy(P, H, F, En):
 
-    EN = 0 
-    
+    EN = 0
+
     for i in range(0,2):
-        
+
         EN += En[i]
-        
+
     EN += (P*H).sum()
 
     return EN
@@ -277,9 +277,9 @@ def G(x, a, b):
 def GT2(x, C1, C2, Co1, alfa1, Co2, alfa2):
     Gtot2 = 0
     for i in range(0, ncontr):
-        
+
         Gtot2 += C1 * G(x, Co1[i], alfa1[i]) + C2 * G(x, Co2[i], alfa2[i])
-        
+
     return Gtot2**2
 
 # Verify this is normalised
@@ -298,22 +298,22 @@ print("\nThe norm for the 2s wf is {:.6f} pm {} ".format(I2s[0],I2s[1]))
 # Functions Drawing
 
 def Gdr(x, a, b):
-    return a * np.exp(-b * np.power(x,2)) 
+    return a * np.exp(-b * np.power(x,2))
 
 def GT(x, C, Co, alfa):
     Gtot2 = 0
     for i in range(0, ncontr):
         Gtot2 += Gdr(x, Co[i], alfa[i])
-        
+
     return  Gtot2 * C
 
 def GT2(x, C1, C2, Co1, alfa1, Co2, alfa2):
     Gtot2 = 0
     for i in range(0, ncontr):
-        
+
         Gtot2 += C1 * Gdr(x, Co1[i], alfa1[i]) + C2 * Gdr(x, Co2[i], alfa2[i])
-        
-    return Gtot2**2 
+
+    return Gtot2**2
 
 r = np.arange(0,5,0.01)
 
@@ -326,9 +326,11 @@ orb2s = (GT(r, Cnew[0,1], Co1s, alfa1s) + GT(r, Cnew[1,1], Co2s, alfa2s)) / mt.s
 fig = plt.figure()
 plt.plot(r, orb1s, label = "GTO Orbital, 1s")
 plt.plot(r, orb2s, label = "GTO Orbital, 2s")
+plt.xlabel(r"Distance $[a_0]$")
+plt.ylabel(r"WF $\Psi(r)$")
 plt.legend()
 plt.grid()
-plt.title("Orbitals with Contranctions")
+plt.title("Beryllium Orbitals with contranctions")
 plt.savefig("Gaussians_Berillium_contr.png", dpi=300)
 
 # Electronic density plot
@@ -340,7 +342,9 @@ orb2s2 = GT2(r, Cnew[0,1], Cnew[1,1], Co1s, alfa1s, Co2s, alfa2s) / I2s[0]
 fig = plt.figure()
 plt.plot(r, orb1s2, label="Density 1s")
 plt.plot(r, orb2s2, label="Density 2s")
+plt.xlabel(r"Distance $[a_0]$")
+plt.ylabel(r"$\rho$")
 plt.legend()
 plt.grid()
-plt.title("Berillium Electronic Density (contractions)")
+plt.title("Berillium Electronic Density with contractions")
 plt.savefig("Density_Be_contr.png", dpi=300)

@@ -8,7 +8,7 @@ Z = 4 # For Berillium
 
 # Coefficients for the exponents of the gaussians
 
-alfa = np.array([70.64859542, 12.92782254, 3.591490662, 1.191983464, 
+alfa = np.array([70.64859542, 12.92782254, 3.591490662, 1.191983464,
                  3.072833610, 0.6652025433, 0.2162825386, 0.08306680972] )
 
 
@@ -284,7 +284,7 @@ print("\nThe norm for the 2s wf is {} pm {} ".format(I2s[0],I2s[1]))
 # Functions Drawing
 
 def Gdr(x, a, b):
-    return a * np.exp(-b * np.power(x,2)) 
+    return a * np.exp(-b * np.power(x,2))
 
 def GT(x, eigvec, alfa):
     return ( Gdr(x, eigvec[0], alfa[0]) + Gdr(x, eigvec[1], alfa[1]) \
@@ -303,6 +303,8 @@ plt.plot(r, GT(r, Cnew1s, alfa1s) / mt.sqrt(I1s[0]), label = "GTO Orbital, 1s")
 plt.plot(r, -GT(r, Cnew2s, alfa2s) / mt.sqrt(I2s[0]), label = "GTO Orbital, 2s")
 plt.legend()
 plt.grid()
+plt.xlabel(r"Distance $[a_0]$")
+plt.ylabel(r"WF $\Psi(r)$")
 plt.title("Orbitals")
 plt.savefig("Gaussians_Berillium.png", dpi=300)
 
@@ -313,5 +315,7 @@ plt.plot(r, GT2(r, Cnew1s, alfa1s) / I1s[0], label="Density 1s")
 plt.plot(r, GT2(r, Cnew2s, alfa2s) / I2s[0], label="Density 2s")
 plt.legend()
 plt.grid()
+plt.xlabel(r"Distance $[a_0]$")
+plt.ylabel(r"$\rho$")
 plt.title("Berillium Electronic Density")
 plt.savefig("Density_Be.png", dpi=300)
