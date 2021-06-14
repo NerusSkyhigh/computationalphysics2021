@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 
 # Define system parameters
 
-Ne = 18 # Number of electrons. Try with 2, 8, 18, 20
+Ne = 2 # Number of electrons. Try with 2, 8, 18, 20
 
 rs = 3.93 # For Na 
 #rs = 4.86 # For K
@@ -149,7 +149,7 @@ def numerov(psi1, psi2, i, E, l, rho):
 # Function to construct the density
 
 @njit 
-def rhoconstr(psi, Nel):
+def rhoconstr(psi):
     
     rho = np.zeros(Nx)
     
@@ -158,8 +158,8 @@ def rhoconstr(psi, Nel):
         rho[i] = (psi[i] / x[i])**2
         
     rho[0] = rho[1]
-    
-    return rho
+     
+    return rho 
 
 # Function to integrate for normalisation
 
@@ -171,12 +171,10 @@ def normalisation(x, psi, rho):
     for i in range(0,Nx):
         
         I += rho[i] * dx
-        
-    No = I * rs / (rhob * Rc)
 
-    rho = rho / No 
+    rho = rho / I 
    
-    psi = psi / No**0.5
+    psi = psi / I**0.5 
      
     return psi, rho
 
@@ -186,15 +184,6 @@ def level(n, l, En, last, rhoin):
     
     psi = np.zeros(Nx)
     
-    # Number of electrons
-    
-    if l == 0:
-        Nel = 2
-    elif l == 1:
-        Nel = 6
-    elif l == 2:
-        Nel = 10
-    
     psi[0] = 0
     psi[1] = pow(dx, l+1)
     
@@ -203,7 +192,6 @@ def level(n, l, En, last, rhoin):
         psi[0] = 0
         psi[1] = dx
         
-
     rat = 1.0
     lastnow = last
     
@@ -214,78 +202,47 @@ def level(n, l, En, last, rhoin):
             for i in range(2, Nx, 1):
                
                 psi[i] = numerov(psi[i-2], psi[i-1], i, Ener, l, rhoin)
-               
-       
+                    
             lastbefore = lastnow 
             lastnow = psi[Nx-1]
             rat = lastnow / lastbefore
            
             Ener = Ener + dE    
            
-      
+            
     zero = Ener- dE - (dE / (lastnow - lastbefore) ) * lastnow
     
     # Construct new density
         
-    rho = rhoconstr(psi, Nel)
+    rho = rhoconstr(psi)
 
     psi, rho = normalisation(x, psi, rho)
      
     return zero, psi, lastnow, rhoin, rho
 
-# SELF CONSISTENT PROCEDURE 
-
-@njit 
-def selfcons(n, l, En, last):
-    
-    tr = 1E-4
-    
-    # Set initial densities
-    
-    rhold = np.zeros(Nx)
-    rhonew =  np.zeros(Nx)
-    
-    Eold = 0
-    energy = En
-    
-    while abs(Eold - energy) > tr:
-    
-        Eold = energy
-        
-        rhomix = a*rhonew + (1-a) * rhold  
-    
-        energy, psi, lastnow, rhold, rhonew = level(n, l, En, last, rhomix)
-    
-    return energy, psi, lastnow, rhold, rhonew
-        
-
 # RUN SIMULATION
 
 begin = time.time()
 
-# We set an initial rho for testing
-
-rho = np.zeros(Nx)
-
 # Construct 1s level
 
-#En1s, psi1s, last1s, rho1so, rho1s = level(1, 0, - 2.0 * m.pi * rhob * Rc**2, 1.0, rho)
+En1s, psi1s, last1s, rho1so, rho1s = level(1, 0, - 2.0 * m.pi * rhob * Rc**2, 1.0, np.zeros(Nx))
 
-En1s, psi1s, last1s, rho1so, rho1s = selfcons(1, 0, - 2.0 * m.pi * rhob * Rc**2, 1.0)
+#En1s, psi1s, last1s, rho1so, rho1s = level(1, 0, - 2.0 * m.pi * rhob * Rc**2, 1.0, rho1s)
 
 print("\nThe energy of the 1s is {}".format(En1s))
 
- # Construct 1p level 
+#  # Construct 1p level 
 
-En1p, psi1p, last1p, rho1po, rho1p = selfcons(1, 1, En1s, -last1s)
+# En1p, psi1p, last1p, rho1po, rho1p = selfcons(1, 1, En1s, -last1s)
 
-print("\nThe energy of the 1p is {}".format(En1p))
+# print("\nThe energy of the 1p is {}".format(En1p))
 
- # Construct 1p level 
+#  # Construct 1p level 
 
-En1d, psi1d, last1d, rho1do, rho1d = selfcons(1, 2, En1p, -last1p)
+# En1d, psi1d, last1d, rho1do, rho1d = selfcons(1, 2, En1p, -last1p)
 
-print("\nThe energy of the 1d is {}".format(En1d))
+# print("\nThe energy of the 1d is {}".format(En1d))
 
 # # # Construct 2s level
 
@@ -295,7 +252,7 @@ print("\nThe energy of the 1d is {}".format(En1d))
 
 # Construct final density
 
-rho =  rho1s + rho1p + rho1d #+ rho2s
+rho =  rho1s #+ rho1p + rho1d #+ rho2s
 
 end = time.time()
 
@@ -306,8 +263,8 @@ print("\nThis took me "+str(end-begin)+" seconds.")
 
 fig = plt.figure()
 plt.plot(x[0:int(14/dx)], psi1s[0:int(14/dx)], linewidth=0.9, label="1s")
-plt.plot(x[0:int(14/dx)], psi1p[0:int(14/dx)], linewidth=0.9, label ="1p")
-plt.plot(x[0:int(14/dx)], psi1d[0:int(14/dx)], linewidth=0.9, label="1d")
+# plt.plot(x[0:int(14/dx)], psi1p[0:int(14/dx)], linewidth=0.9, label ="1p")
+# plt.plot(x[0:int(14/dx)], psi1d[0:int(14/dx)], linewidth=0.9, label="1d")
 # plt.plot(x[0:int(14/dx)], psi2s[0:int(14/dx)], linewidth=0.9, label="2s")
 plt.legend()
 plt.title("Wavefunction with {} electrons".format(Ne))
@@ -327,7 +284,7 @@ plt.savefig("rho_20_el.png", dpi=300)
 # Potential
 
 @njit 
-def drawvec():
+def drawvec(rh):
     
     V0 = np.zeros(Nx)
     di = np.zeros(Nx)
@@ -335,21 +292,21 @@ def drawvec():
     ex = np.zeros(Nx)
 
     for i in range(0, Nx):
-        V0[i] = draw_pot(x[i], rho)
-        di[i] = direct(x[i], rho)
+        V0[i] = draw_pot(x[i], rh)
+        di[i] = direct(x[i], rh)
         co[i] = correlation(x[i])
-        ex[i] = exchange(x[i], rho)
+        ex[i] = exchange(x[i], rh)
         
     return V0, di, co, ex
 
-V0, di, co, ex = drawvec()
+V0, di, co, ex = drawvec(np.zeros(Nx))
 
 fig2 = plt.figure()
 plt.plot(x, V0, linewidth=0.9, label="Total")
 plt.plot(x, di, linewidth=0.9, color="black", label="direct")
 plt.plot(x, co, linewidth=0.9, color="magenta", label="correlation")
 plt.plot(x, ex, linewidth=0.9, color="green", label="exchange")
-plt.title("Potential")
+plt.title("Potential with {} electrons".format(Ne))
 # plt.axhline(En1s , color="green", linestyle="-.", label="1s", linewidth=0.9)
 # plt.axhline(En1p , color="blue", linestyle="-.", label="1p", linewidth=0.9)
 # plt.axhline(En1d , color="red", linestyle="-.", label="1d", linewidth=0.9)
