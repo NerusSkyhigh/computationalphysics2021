@@ -32,3 +32,13 @@ Repository for the course Computational Physics help by Prof. Pederiva at unitn.
 2. Self consistent procedure acconting for direct, exchange and correlation terms.
 3. Polarisation calculation
 
+## Exercise 4: Variational MC for Superfluid He
+
+### TODO
+
+1. Write down explicit expresison for the local kinetic energy in two different ways as shown in the lecture. 
+2. Work out hbar/2m when using the proper energy and length units of the problem
+3. Setup of the initial configuration of the system for the simulation. 
+4. Metropolis algorithm to sample the square modulus of the WF and compute the energy. Minimise the energy.
+5.  Repeat the simulation for other 2 densities and find the minimum of the density. 
+
