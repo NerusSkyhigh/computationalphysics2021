@@ -59,14 +59,49 @@ def initcond(part):
     return part;
 
 
-particles= initcond(particles)
+# This function does the same thing in a way that is compatible with the optimisation provided by njit
 
- 
+def initcond_1(part):
+    
+    pind = 0
+    
+    for k in range(0,4):
+        
+        zval = k * a / 2 # set z coordinate
+    
+        for i in range(0,4):
+            
+            xval = i * a / 2 # set x coordinate
+            
+            for j in range(0,2):
+            
+                if k%2 == 0:
+            
+                    yval = j * a + i%2 * a/2 # set y coordinate
+            
+                else:
+                    
+                    yval = (j + 1/2) * a - i%2 * a/2 # set y coordinate
+        
+                part[pind, 0] = xval 
+                part[pind, 1] = yval
+                part[pind, 2] = zval
+                
+                pind += 1
+    
+    return part;
+
+particles = initcond(particles)
+
+particles1 = initcond(particles)
+
 # Let us verify our success with a plot
 
 fig = plt.figure()
 ax = fig.add_subplot(projection='3d')
 ax.scatter(particles[:,0], particles[:,1], particles[:,2])
 
-
+fig = plt.figure()
+ax = fig.add_subplot(projection='3d')
+ax.scatter(particles1[:,0], particles1[:,1], particles1[:,2])
 
