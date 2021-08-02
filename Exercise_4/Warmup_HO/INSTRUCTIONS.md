@@ -11,17 +11,18 @@ viene applicato fino a che non si raggiunge un certo valore di accuratezza. Quan
 contatori sono resettati e la simulazione vera e propria comincia. Il programma restituisce dei vettori che 
 contengono l'energia cinetica, potenziale e totale. Inoltre vengono calcolati valor medio e deviazione standard
 per l'energia ottenuta, insieme alla frazione di "proposte" accettate. In questo modo si può studiare come 
-i risultati dipendono dal numero di steps, dal parametro variazionale e dal parametro delta.
+i risultati dipendono dal numero di steps, dal parametro variazionale e dal parametro delta. 
+
+Nell'ultima versione è stato aggiunto uno schema adattivo per il parametro Delta, che stabilizza la
+frazione di proposte accettate in un range definito. 
 
 ## Cosa funziona
 
 Tutto, i risultati per l'energia e la deviazione standard sono corretti. 
 
 # Cosa andrebbe migliorato
-Si potrebbe pensare ad un modo alternativo per terminare la fase di "equilibrazione". Più importante sarebbe
-trovare uno schema che adatti il parametro delta alla simulazione, in modo da farla convergere automaticamente 
-ad una percentuale di proposte accettate vicina al 50% indipendentemente dal parametro variazionale usato. Si 
-potrebbe lavorare sull'autocorrelazione.
+Si potrebbe pensare ad un modo alternativo per terminare la fase di "equilibrazione". Si potrebbe anche 
+lavorare sull'autocorrelazione.
 
 # File Warmup_Ho_2
 
@@ -43,3 +44,5 @@ Sostanzialmente quello che manca nel programma precedente. Come si vede dal graf
 dipende molto dal parametro variazionale, rendendo desiderabile uno schema adattivo per delta. Volendo, si potrebbe 
 usare un reweighting per la procedura variazionale, migliorando la performance. Personalmente, siccome la simulazione 
 impiega 2 secondi con un numero di punti tali da produrre varianze invisibili, non ne vedo la ragione. 
+
+N.B. in questo secondo programma non è ancora stato aggiunto lo schema adattivo per delta.
