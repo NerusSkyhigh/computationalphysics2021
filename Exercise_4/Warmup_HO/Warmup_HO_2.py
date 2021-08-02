@@ -16,6 +16,7 @@ import matplotlib.pyplot as plt
 import random as rd
 
 N_steps = 50000 # Simulation steps
+N_eq = 5000
 
 # Function to compute the WF
 
@@ -97,39 +98,72 @@ def montecarlo(x, alpha):
     wf2 = WF(x,alpha)
 
     N_acc1 = 0
-    cum_en = 0
-    cum_en2 = 0 
-    std = 1 
-    mean = 1
-    s = 0
+    # cum_en = 0
+    # cum_en2 = 0 
+    # std = 1 
+    # mean = 1
+    # s = 0
     
-    while std / mean > 0.02: # stop the equilibration when variance is smaller than 1%
+    # Equilibration with std (NB does not work well with adaptive scheme for delta!!)
+    
+    # while std / mean > 0.02: # stop the equilibration when variance is smaller than 1%
+        
+    #     # An adaptive scheme for Delta would be needed
+
+    #     x, N_acc1, wf2 = metropolis(x, N_acc1, wf2, Delta, alpha)
+        
+    #     # Instead of using a chosen number of equilibration steps, we have to
+    #     # use the convergence of the energy to stop the procedure 
+        
+    #     # Cumulate the observables
+    #     loc_en = k_energy(x, alpha) + p_energy(x)
+    #     cum_en += loc_en
+    #     cum_en2 += loc_en**2
+        
+    #     if s >= 2 and s%5 == 0:
+            
+    #         mean = cum_en / s
+    #         std = m.sqrt( 1 / (s-1) * ( cum_en2 / s - mean**2) )
+            
+    #     s += 1
+        
+    #     # An adaptive scheme for Delta 
+          
+    #     if s != 0  and s%5 == 0:
+          
+    #         if N_acc1 / s >= 0.55:
+              
+    #             Delta += 0.05 * 4
+             
+    #         elif N_acc1 / s <= 0.45:
+             
+    #             Delta -= 0.05 * 4
+                
+    # Equilibration with chosen steps             
+                
+    for s in range(0,N_eq): # stop the equilibration when variance is smaller than 1%
         
         # An adaptive scheme for Delta would be needed
 
         x, N_acc1, wf2 = metropolis(x, N_acc1, wf2, Delta, alpha)
-        
-        # Instead of using a chosen number of equilibration steps, we have to
-        # use the convergence of the energy to stop the procedure 
-        
-        # Cumulate the observables
-        loc_en = k_energy(x, alpha) + p_energy(x)
-        cum_en += loc_en
-        cum_en2 += loc_en**2
-        
-        if s >= 2 and s%5 == 0:
-            
-            mean = cum_en / s
-            std = m.sqrt( 1 / (s-1) * ( cum_en2 / s - mean**2) )
-            
-        s += 1
+    
+        # An adaptive scheme for Delta 
+          
+        if s != 0  and s%5 == 0:
+          
+            if N_acc1 / s >= 0.55:
+              
+                Delta += 0.05 * 4
+             
+            elif N_acc1 / s <= 0.45:
+             
+                Delta -= 0.05 * 4
+                
         
     # If we do things in the following way, we choose the length of the 
     # simulation. Alternatively we can choose again the target accuracy
     # The problem in doing so is that for some values of the variational 
     # parameter (too far from exact) a high accuracy may take forever to reach
-
-    # Then, the simulation steps
 
     N_acc2 = 0
     cum_en = 0 # Reset cumulative variable
@@ -143,6 +177,7 @@ def montecarlo(x, alpha):
         loc_en = k_energy(x, alpha) + p_energy(x)
         cum_en += loc_en
         cum_en2 += loc_en**2
+        
         
     mean_en = cum_en / N_steps
     std_en = m.sqrt( 1 / (N_steps-1) * ( cum_en2 / N_steps - mean_en**2) )
@@ -183,10 +218,6 @@ def variational_1(x):
 
 @njit
 def variational_2(x):
-    
-    alpha_0 = 1 
-    
-    alpha_v = np.arange(0.8, 1.2, 0.05) # parameters to try
     
     return alpha, accept, mean, std
 
