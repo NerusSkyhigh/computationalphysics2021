@@ -37,12 +37,13 @@ e ne fa un grafico. Anche la frazione di proposte accettate in ogni simulazione 
 Tutto, il valore minimo dell'energia che viene trovato concide con il valore esatto e viene trovato in corrispondenza
 del valore del parametro variazionale che coincide con la soluzione esatta. In corrispondenza di questo valore,
 come atteso, è anche minima la deviazione standard (che è 0, mentre non lo è per altri valori del parametro). 
+Nota: lo schema adattivo per il parametro delta non funziona troppo bene con la lunghezza della fase iniziale
+stabilita con la deviazione standard... per questo userei un numero di passi fissato in futuro.
 
 # Cosa andrebbe migliorato
 
-Sostanzialmente quello che manca nel programma precedente. Come si vede dal grafico, la probabilità di accettazione
-dipende molto dal parametro variazionale, rendendo desiderabile uno schema adattivo per delta. Volendo, si potrebbe 
-usare un reweighting per la procedura variazionale, migliorando la performance. Personalmente, siccome la simulazione 
-impiega 2 secondi con un numero di punti tali da produrre varianze invisibili, non ne vedo la ragione. 
+ Volendo, si potrebbe usare un reweighting per la procedura variazionale, migliorando la performance. Personalmente, 
+ siccome la simulazione  impiega 2 secondi con un numero di punti tali da produrre varianze invisibili, non ne vedo 
+ la ragione. 
 
-N.B. in questo secondo programma non è ancora stato aggiunto lo schema adattivo per delta.
+
