@@ -11,7 +11,7 @@ N_eq = 5000 # Equilibration steps
 
 N_steps = 50000 # Simulation steps
 
-alpha = 3.0 # Variational parameter for the WF
+alpha = 2.0 # Variational parameter for the WF
 
 # Function to compute the WF
 
@@ -83,7 +83,7 @@ def k_energy(x):
 
 # FUNCTION TO PERFORM THE ITERATIVE PROCEDURE
 
-#@njit
+@njit
 def montecarlo(x):
     
     Delta = 4 # Value of parameter for displacement
@@ -100,34 +100,9 @@ def montecarlo(x):
 
     N_acc1 = 0
     
-    # Equilibration with fixed steps
+    # # Equilibration with fixed steps
     
-    for s in range(0,N_eq): # stop the equilibration when variance is smaller than a value
-    
-        x, N_acc1, wf2 = metropolis(x, N_acc1, wf2, Delta)
-        
-        # Vectors for plotting
-        pot[s] = p_energy(x)
-        kin[s] = k_energy(x)
-        tot[s] = pot[s] + kin[s]
-    
-        # An adaptive scheme for Delta 
-        
-        if s != 0  and s%5 == 0:
-        
-            
-            if N_acc1 / s >= 0.55:
-                
-                Delta += 0.05 * 4
-                
-            elif N_acc1 / s <= 0.45:
-                
-                Delta -= 0.05 * 4
-        
-
-    # # Equilibration with standard deviation
-
-    # while std / mean > 0.02: # stop the equilibration when variance is smaller than a value
+    # for s in range(0,N_eq): # stop the equilibration when variance is smaller than a value
     
     #     x, N_acc1, wf2 = metropolis(x, N_acc1, wf2, Delta)
         
@@ -135,21 +110,66 @@ def montecarlo(x):
     #     pot[s] = p_energy(x)
     #     kin[s] = k_energy(x)
     #     tot[s] = pot[s] + kin[s]
+    
+    #     # An adaptive scheme for Delta 
         
-    #     # Instead of using a chosen number of equilibration steps, we should
-    #     # use the convergence of the energy to stop the procedure 
+    #     if s != 0  and s%5 == 0:
         
-    #     # Cumulate the observables
-    #     loc_en = k_energy(x) + p_energy(x)
-    #     cum_en += loc_en
-    #     cum_en2 += loc_en**2
-        
-    #     if s >= 2 and s%5 == 0:
             
-    #         mean = cum_en / s
-    #         std = m.sqrt( 1 / (s-1) * ( cum_en2 / s - mean**2) )
+    #         if N_acc1 / s >= 0.55:
+                
+    #             Delta += 0.05 * 4
+                
+    #         elif N_acc1 / s <= 0.45:
+                
+    #             Delta -= 0.05 * 4
+        
+
+    # Equilibration with standard deviation
+    
+    std = 1
+    mean = 1
+    cum_en = 0
+    cum_en2 = 0
+    s = 0
+
+    while std / mean > 0.02: # stop the equilibration when variance is smaller than a value
+    
+        x, N_acc1, wf2 = metropolis(x, N_acc1, wf2, Delta)
+        
+        # Vectors for plotting
+        pot[s] = p_energy(x)
+        kin[s] = k_energy(x)
+        tot[s] = pot[s] + kin[s]
+        
+        # Instead of using a chosen number of equilibration steps, we should
+        # use the convergence of the energy to stop the procedure 
+        
+        # Cumulate the observables
+        loc_en = k_energy(x) + p_energy(x)
+        cum_en += loc_en
+        cum_en2 += loc_en**2
+        
+        if s >= 2 and s%5 == 0:
             
-    #     s += 1
+            mean = cum_en / s
+            std = m.sqrt( 1 / (s-1) * ( cum_en2 / s - mean**2) )
+            
+        s += 1
+        
+        # An adaptive scheme for Delta 
+          
+        if s != 0  and s%5 == 0:
+          
+            if N_acc1 / s >= 0.55:
+              
+                Delta += 0.05 * 4
+             
+            elif N_acc1 / s <= 0.45:
+             
+                Delta -= 0.05 * 4
+
+
             
         
     # Then, the simulation steps
