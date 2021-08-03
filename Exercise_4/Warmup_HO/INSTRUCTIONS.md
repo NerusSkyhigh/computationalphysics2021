@@ -27,7 +27,7 @@ lavorare sull'autocorrelazione.
 # File Warmup_Ho_2
 
 Nel file precedente il paramtro variazionale è fissato a mano. In questo programma, la simulazione viene eseguita
-per diversivalori del parametro in modo da trovare il valore che minimizza l'energia. Questo è il compito della 
+per diversi valori del parametro in modo da trovare il valore che minimizza l'energia. Questo è il compito della 
 funzione "variational_1". Sono stati rimossi i vettori per il plot dell'energia, che in questo caso non servono.
 Il programma restituisce l'energia media e l'errore trovati nella simulazione con ogni valore del parametro variazionale
 e ne fa un grafico. Anche la frazione di proposte accettate in ogni simulazione è calcolata e plottata. 
@@ -36,14 +36,14 @@ e ne fa un grafico. Anche la frazione di proposte accettate in ogni simulazione 
 
 Tutto, il valore minimo dell'energia che viene trovato concide con il valore esatto e viene trovato in corrispondenza
 del valore del parametro variazionale che coincide con la soluzione esatta. In corrispondenza di questo valore,
-come atteso, è anche minima la deviazione standard (che è 0, mentre non lo è per altri valori del parametro). 
+come atteso, anche la deviazione standard è minima (ed è 0, mentre non lo è per altri valori del parametro). 
 Nota: lo schema adattivo per il parametro delta non funziona troppo bene con la lunghezza della fase iniziale
 stabilita con la deviazione standard... per questo userei un numero di passi fissato in futuro.
 
 # Cosa andrebbe migliorato
 
  Volendo, si potrebbe usare un reweighting per la procedura variazionale, migliorando la performance. Personalmente, 
- siccome la simulazione  impiega 2 secondi con un numero di punti tali da produrre varianze invisibili, non ne vedo 
- la ragione. 
+ siccome la simulazione impiega 2 secondi con un numero di punti tali da produrre varianze invisibili, non ne vedo 
+ la necessità. 
 
 
