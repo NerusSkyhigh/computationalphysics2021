@@ -1,12 +1,9 @@
 # MONTE CARLO TEST WITH HARMONIC OSCILLATOR iN 1D
 
-
 # The prevuìious code allowd us to test the algorithm and verify the properties
 # of the local kinetic energy with some plots. However, the variational parameter
 # in the WF had to be changed manually. Now, we actually want to automate the 
 # variational procedure to find the best value of alpha via a minimisation of the energy
-
-
 
 import time
 import numpy as np
@@ -28,7 +25,6 @@ def WF(x, alpha):
     Psi = m.exp(- x**2 / (2*alpha**2) ) #* 1 / (2*m.pi*alpha**2)**0.5
     
     return Psi
-
 
 # FUNCTION FOR THE METROPOLIS ALGORITHM
 
@@ -66,7 +62,6 @@ def metropolis(x, N_acc, wf2_old, Delta, alpha):
        wf2 = wf2_new
 
     return x, N_acc, wf2
-
 
 # FUNCTION TO COMPUTE THE POTENTIAL ENERGY 
 
@@ -158,8 +153,7 @@ def montecarlo(x, alpha):
             elif N_acc1 / s <= 0.45:
              
                 Delta -= 0.05 * 4
-                
-        
+                   
     # If we do things in the following way, we choose the length of the 
     # simulation. Alternatively we can choose again the target accuracy
     # The problem in doing so is that for some values of the variational 
@@ -169,15 +163,25 @@ def montecarlo(x, alpha):
     cum_en = 0 # Reset cumulative variable
     cum_en2 = 0 # Reset cumulative variable
 
-
     for s in range(0, N_steps):
 
         x, N_acc2, wf2 = metropolis(x, N_acc2, wf2, Delta, alpha)
         
+         # An adaptive scheme for Delta 
+          
+        if s != 0  and s%5 == 0:
+          
+            if N_acc2 / s >= 0.55:
+              
+                Delta += 0.05 * 4
+             
+            elif N_acc2 / s <= 0.45:
+             
+                Delta -= 0.05 * 4
+        
         loc_en = k_energy(x, alpha) + p_energy(x)
         cum_en += loc_en
         cum_en2 += loc_en**2
-        
         
     mean_en = cum_en / N_steps
     std_en = m.sqrt( 1 / (N_steps-1) * ( cum_en2 / N_steps - mean_en**2) )
@@ -195,7 +199,7 @@ def montecarlo(x, alpha):
 @njit
 def variational_1(x):
     
-    alpha = np.arange(0.15, 3, 0.05) # vector for parameters to try
+    alpha = np.arange(0.3, 3, 0.05) # vector for parameters to try
     
     l = len(alpha)
     
@@ -218,6 +222,10 @@ def variational_1(x):
 
 @njit
 def variational_2(x):
+    
+    alpha = np.arange(0.8, 1.2, 0.01) # vector for parameters to try
+    
+    
     
     return alpha, accept, mean, std
 

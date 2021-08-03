@@ -100,7 +100,7 @@ def montecarlo(x):
 
     N_acc1 = 0
     
-    # # Equilibration with fixed steps
+    # # Equilibration with fixed steps (simple + a bit faster + no zeros in the plots )
     
     # for s in range(0,N_eq): # stop the equilibration when variance is smaller than a value
     
@@ -115,7 +115,6 @@ def montecarlo(x):
         
     #     if s != 0  and s%5 == 0:
         
-            
     #         if N_acc1 / s >= 0.55:
                 
     #             Delta += 0.05 * 4
@@ -125,7 +124,7 @@ def montecarlo(x):
     #             Delta -= 0.05 * 4
         
 
-    # Equilibration with standard deviation
+    # Equilibration with standard deviation (more "correct" (?))
     
     std = 1
     mean = 1
@@ -168,8 +167,6 @@ def montecarlo(x):
             elif N_acc1 / s <= 0.45:
              
                 Delta -= 0.05 * 4
-
-
             
         
     # Then, the simulation steps
