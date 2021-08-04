@@ -46,4 +46,7 @@ stabilita con la deviazione standard... per questo userei un numero di passi fis
  siccome la simulazione impiega 2 secondi con un numero di punti tali da produrre varianze invisibili, non ne vedo 
  la necessità. 
 
+Edit: è vero, non ne vedo la necessità per il caso dell'oscillatore armonico. Nel caso dell'elio, però, la procedura
+diventa più lunga e impiega 2 o 3 minuti... un reweighting potrebbe essere interessante forse... nel caso, ho provato 
+ad implementare la cosa nel file "Warmup_HO_Reweight"... non è andata troppo bene per ora...
 
