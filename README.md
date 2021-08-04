@@ -38,8 +38,9 @@ Repository for the course Computational Physics help by Prof. Pederiva at unitn.
 
 ### TODO
 
-1. Write down explicit expresison for the local kinetic energy in two different ways as shown in the lecture. 
-2. Work out hbar/2m when using the proper energy and length units of the problem
-4. Metropolis algorithm to sample the square modulus of the WF and compute the energy. Minimise the energy.
-5.  Repeat the simulation for other 2 densities and find the minimum of the density. 
+1. Write down explicit expresison for the local kinetic energy in two different ways as shown in the lecture. (to be corrected...)
+3. Work out hbar/2m when using the proper energy and length units of the problem (to be corrected...)
+4. Metropolis algorithm to sample the square modulus of the WF and compute the energy. Minimise the energy. (waiting for the previous two 
+points to compute local kinetic energy...)
+6.  Repeat the simulation for other 2 densities and find the minimum of the density. (Once point 4 is done, this is done as well...)
 
