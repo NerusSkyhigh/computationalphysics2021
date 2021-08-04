@@ -21,8 +21,10 @@ All'interno della funzione "montecarlo" è stata aggiunta una funzione che calco
 
 La cosa sembra funzionare... chiaramente, il potenziale fluttua moltissimo fra le varie configurazioni, come atteso. Quello che mi aspetterei è un valore medio più o meno costante fra varie esecuzioni della simulazione entro l'errore statistico. Questa cosa è stata verificata, direi... Quello che mi aspetterei è che eseguendo più volte la simulazione, i valori ottenuti siano entro 1 sigma circa il 70% delle volte, e tutte le volte capitino entro 4 o massimo 5 sigma... mi sembra che la dispersione dei risultati che ho ottenuto sia compatibile con questa cosa, ma si potrebbe fare una verifica sistematica.
 
-# total_energy
+# total_energy, procedura variazionale e densità
 
-Aggiungere il calcolo dell'enegia cinetica locale... ci sto lavorando...
+Per il calcolo dell'energia totale, bisogna aggiungere il calcolo dell'energia cinetica locale... Il calcolo che ho fatto è su overleaf (richiesta 1). Tuttavia, la prima implementazione che ho provato non funziona... quindi o è sbagliata quella o è sbagliato il calcolo. In aggiunta, per fare questo conto servirebbe anche il valore della costante hbar^2/2m in unità del problema (richiesta 2) anche quello è su overleaf ma probabilmente è sbagliato. Ho fatto anche due programmi che eseguono la procedura variazionale e la ricerca della densità, ma ovviamente per testarli serve una soluzione corretta per l'energia cinetica locale. 
 
+Quindi a meno che non ci siano grossi errori in tutto il resto (speriamo di no, no?) dovrebbe amncare solo il calcolo corretto dell' energia cinetica locale. 
 
+Se voleste vedere i programmi che ho fatto per l'energia locale, la procedura variazionale e la ricerca della densità... chiedetemeli, ma penso sarebbe meglio che prima cercaste una soluzione alternativa senza influenze negative. 
