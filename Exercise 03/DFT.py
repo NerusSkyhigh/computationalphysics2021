@@ -21,7 +21,7 @@ rhob = 3.0 / (4.0 * m. pi * rs**3)  # [1/Bhor radius^3]
 Rc = Ne**(1/3) * rs # [1/Bhor radius^3]
 
 
-# Setting some initial parameters
+# --------------- Parameters of the computation  ---------------
 Nx = 500 # Number of mesh points
 dE = 0.00001 # energy step [?]
 L = 14.0 # Mesh length [Bhor radius]
@@ -36,7 +36,7 @@ dx = L / Nx # mesh spacing [Bhor radius]
 x = np.linspace(start=0, stop=L, num=Nx, endpoint=False)
 
 
-# Correlation function parameters
+# Correlation function parameters ?
 p = 1.0
 A = 0.031091
 a1 = 0.21370
@@ -50,14 +50,11 @@ b4 = 0.49294
 a = 0.01
 
 # Define a function that computes the direct term in the potential
-
 @njit
 def direct(r, rho):
-
     u = 0.0
 
     for i in range(0, Nx):
-
         rpr = dx * i
 
         if rpr <= r and r != 0:
@@ -65,21 +62,18 @@ def direct(r, rho):
             u += (1 / r) * rho[i] * rpr**2 * dx
 
         else:
-
+            # Outside of the sphere we see only the total Density
             u += rho[i] * rpr * dx
 
 
     return 4 * m.pi * u
 
 # Function for the exchange term
-
 @njit
 def exchange(r, rho):
-
     ind = int(r/dx)
 
-     # Pad density with zeros to avoid naugthy divergences
-
+    # Pad density with zeros to avoid naugthy divergences
     ex = -(3.0 * rho[ind] / m.pi)**(1.0 / 3.0)
 
     return ex
@@ -88,54 +82,44 @@ def exchange(r, rho):
 
 @njit
 def correlation(r):
-
     G = -2.0 * A * (1 + a1 * rs) * m.log(1.0 + 1.0 / (2.0 * A * \
         (b1 * rs**(1.0/2.0) + b2 * rs + b3 * rs**(3.0/2.0) + b4 * r**(p + 1.0) ) ) )
-
     return G
 
 
 # Define a function for the potential. Takes as input, position r, l quantum # and mixed density
-
 @njit
 def potential(r, l, rho):
-
     V = direct(r, rho) + exchange(r, rho) + correlation(r)
 
     if r <= Rc:
-
         V += 2.0 * m.pi * rhob * ( (1.0 / 3.0) * r**2 - Rc**2 )
 
     else:
-
         V += - 2.0 * m.pi * rhob * (2.0 / 3.0) * (Rc**3 / r)
 
     if r != 0:
-
         V += l * (l + 1) / (2 * r**2)
 
     return V
 
+
 # Define a potential function for the drawing phase
 # Takes as input position r and mixed density rho
-
 @njit
 def draw_pot(r, rho):
-
     V = direct(r, rho) + exchange(r, rho) + correlation(r)
 
     if r <= Rc:
-
         V += 2.0 * m.pi * rhob * ( (1.0 / 3.0) * r**2 - Rc**2 )
 
     else:
-
         V += - 2.0 * m.pi * rhob * (2.0 / 3.0) * (Rc**3 / r)
 
     return V
 
-# Define Numerov function
 
+# Define Numerov function
 @njit
 def numerov(psi1, psi2, i, E, l, rho):
 
@@ -155,8 +139,8 @@ def numerov(psi1, psi2, i, E, l, rho):
 
     return psif
 
-# Function to construct the density
 
+# Function to construct the density
 @njit
 def rhoconstr(psi, Nel):
 
@@ -311,30 +295,35 @@ end = time.time()
 print("\nThis took me "+str(end-begin)+" seconds.")
 
 
-# WF figure
 
+
+# ------------------ Plot Results  ------------------
+from datetime import datetime
+
+# WF figure
 fig = plt.figure()
+
 plt.plot(x[0:int(14/dx)], psi1s[0:int(14/dx)], linewidth=0.9, label="1s")
 plt.plot(x[0:int(14/dx)], psi1p[0:int(14/dx)], linewidth=0.9, label ="1p")
 plt.plot(x[0:int(14/dx)], psi1d[0:int(14/dx)], linewidth=0.9, label="1d")
 # plt.plot(x[0:int(14/dx)], psi2s[0:int(14/dx)], linewidth=0.9, label="2s")
+
 plt.legend()
 plt.title("Wavefunction with {} electrons".format(Ne))
 plt.axvline(Rc, color = "grey")
-plt.savefig("WF_20_el.png", dpi=300)
+plt.savefig("WF_20_el_"+str(datetime.now())+".png", dpi=300)
+
 
 # Density figure
-
 fig1 = plt.figure()
 plt.plot(x[0:int(14/dx)], rho[0:int(14/dx)], linewidth=0.9)
 plt.title("Density with {} electrons".format(Ne))
 plt.axhline(rhob, xmin = 0, xmax = Rc/14.24, color="grey", linestyle="-.", linewidth=0.9)
 plt.axhline(0, xmin = Rc/14.24, xmax = 1, color="grey", linestyle="-.", linewidth=0.9)
 plt.axvline(Rc, ymin = 0.052, ymax = 0.6, color="grey", linestyle="-.", linewidth=0.9)
-plt.savefig("rho_20_el.png", dpi=300)
+plt.savefig("rho_20_el_"+str(datetime.now())+".png", dpi=300)
 
 # Potential
-
 @njit
 def drawvec():
 
@@ -364,4 +353,4 @@ plt.title("Potential")
 # plt.axhline(En1d , color="red", linestyle="-.", label="1d", linewidth=0.9)
 # plt.axhline(En2s , color="cyan", linestyle="-.", label="2s", linewidth=0.9)
 plt.legend()
-plt.savefig("Pot_20_el.png", dpi=300)
+plt.savefig("Pot_20_el_"+str(datetime.now())+".png", dpi=300)
