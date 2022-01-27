@@ -20,10 +20,6 @@ Repository for the course Computational Physics help by Prof. Pederiva at unitn.
 5. Berillium ground state without contraction
 6. Graphical representation of Berillium WFs and electronic densities
 
-### TO DO
-
-2. Berillium ground state with contractions
-
 ## Exercise 3: DFT for clusters of alkali atoms 
 
 ### TODO
