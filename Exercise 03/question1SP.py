@@ -5,30 +5,34 @@ import numpy as np
 from numba import njit
 import math as m
 import matplotlib.pyplot as plt
+import scipy.integrate as integrate
 
 # Define system parameters
 
-Ne = 18 # Number of electrons. 
+Ne = 20 # Number of electrons. 
 
 #rs = 3.93 # For Na 
 rs = 4.86 # For K
 
 rhob = 3.0 / (4.0 * m. pi * rs**3) 
 
-Rc = (3.0 * Ne / (4.0 * m. pi * rhob) )**(1.0 / 3.0)
+Rc = (Ne)**(1.0 / 3.0) * rs
 
 # Setting some initial parameters 
 
 Nx = 1000 #number of mesh points
 dE = 0.0001 # energy step
-L = 17.0 # Mesh length
+L = 15 # Mesh length
 dx = L / Nx # mesh spacing
 x = np.arange(0, dx * Nx, dx)
 
+Ldraw = 14
+Nxx = int(Ldraw/dx)
 # Define a function for the potential 
 
 @njit
 def potential(x, l):
+     #average coulomb term between electrons
     
     if x <= Rc:
         
@@ -40,14 +44,15 @@ def potential(x, l):
         
     if x != 0:
         
-        V += l*(l+1) / (2 * x**2)
-
+        V += l*(l+1) / (2 * x**2) 
+        
     return V
 
 # Define a coulomb function for the drawing phase
 
 @njit
 def coulomb(x):
+    
     
     if x <= Rc:
         
@@ -82,207 +87,169 @@ def numerov(psi1, psi2, i, E, l):
      
 
 # Function to construct the density
-
-@njit 
-def rhoconstr(psi): #psi is the radial function in this case
+def rhoconstruct(R,x,l):
     
     rho = np.zeros(Nx)
-    
-    for i in range(1,Nx,1):
-        
-        rho[i] = (psi[i] / x[i])**2
-        
-    rho[0] = rho[1]
 
-    
-    return rho 
-
-def normalisation_density(rho,N):
-    I = 0
-    for i in range(1,Nx,1):
-        I += rho[i]*dx#*4*m.pi*x[i]**2
-        
-    rho= rho/I *N
+    for i in range (1,Nx,1): 
+        rho[i] = R[i] *(2*l+1)/(2*m.pi) 
     
     return rho
-# Function to integrate for normalisation
-
-@njit
-def normalisation(x, psi): #normalized to number of electrons
-    
-    I = 0
-    for i in range(0,int(14/dx)):
-
-        I += psi[i]*psi[i]*dx
-    
-    psi = psi /I**0.5
-     
-    return psi
-
+ 
         
-psi = np.zeros(Nx)
-Ener = - 2.0 * m.pi * rhob * Rc**2+dE #set the starting energy at the bottom of the well
-Es = np.zeros((4,2))
-
-# for l in range(0,1):
-#     for n in range(l+1,l+4):
-for l in range(0,2):
-    lastnow = 1
-    if l==1:
-        Ener = Es[1,0] +dE #the energy level of the 2p must be higher than the 2s
-        lastnow = -1 #this is set like this according to the last value of the function, since it has 1 node we expect its last value to be negative
+def level(n,l,Ener,lastnow):
+    u = np.zeros(Nx)
+    #Ener = - 2.0 * m.pi * rhob * Rc**2+dE #set the starting energy at the bottom of the well
+    #lastnow = 1
+    u[0] = 0
+    u[1] = pow(dx, l+1)
+    lastbefore = 1
+    rat = 1.0
     
-    for n in range(l,4):
-        if l == 0:
-            Nel = 2
-        elif l == 1:
-            Nel = 6
-        
-        psi[0] = 0
-        psi[1] = pow(dx, l+1)
-            
-        
-        lastbefore = 1
-        rat = 1.0
-    
-        while rat > 0:
+    while rat > 0:
                    
-            for i in range(2, Nx, 1):
+        for i in range(2, Nx, 1):
                    
-                psi[i] = numerov(psi[i-2], psi[i-1], i, Ener, l)
+            u[i] = numerov(u[i-2], u[i-1], i, Ener, l)
                    
            
-            lastbefore = lastnow 
-            lastnow = psi[Nx-1]
-            rat = lastnow / lastbefore
-               
-            Ener = Ener + dE    
-            
-        Es[n,l] = Ener - dE - (dE / (lastnow - lastbefore) ) * lastnow
-        # Ener = Es[n,l]+dE
-        lastnow = psi[Nx-1]
+        lastbefore = lastnow 
+        lastnow = u[Nx-1]
+        rat = lastnow / lastbefore
+           
+        Ener = Ener + dE    
+        
+    Ener = Ener - dE - (dE / (lastnow - lastbefore) ) * lastnow
+    # Ener = Es[n,l]+dE
+    lastnow = u[Nx-1]
+    
+    return u, Ener, lastnow
 
-# # to check
-# psitest1s = np.zeros(Nx)
-# psitest1s[0] = 0        
-# psitest1s[1] = pow(dx, l+1)
+#building the levels
+E = np.zeros((4,4))
+u1s, E[0,0],lastnow1s = level(1,0, - 2.0 * m.pi * rhob * Rc**2+dE, 1)
+u1p, E[0,1],lastnow1p = level(1,1, E[0,0]+dE , 1)
+u1d, E[0,2],lastnow1d = level(1,2, E[0,1]+dE , 1)
+u2s, E[1,0],lastnow2s = level(2,0, E[0,2]+5*dE , -1)
+R1s = np.zeros(Nx)
+R1p = np.zeros(Nx)
+R1d = np.zeros(Nx)
+R2s = np.zeros(Nx)
 
-# for i in range(2, Nx, 1):
-#      psitest1s[i] = numerov(psitest1s[i-2], psitest1s[i-1], i, Es[1,0] , 0)
-     
-# psitest1spre = np.zeros(Nx)
-# psitest1spre[0] = 0        
-# psitest1spre[1] = pow(dx, l+1)
-# for i in range(2, Nx, 1):
-#      psitest1spre[i] = numerov(psitest1spre[i-2], psitest1spre[i-1], i, (Es[1,0]-dE), 0)
 
-psi1s = np.zeros(Nx)
-psi1s[0] = 0        
-psi1s[1] = pow(dx, 1)
+
+u1s[0] = 0
+u1s[1] = pow(dx, 1)
 for i in range(2, Nx, 1):
-      psi1s[i] = numerov(psi1s[i-2], psi1s[i-1], i, Es[0,0] , 0)
-      
-psi2s = np.zeros(Nx)
-psi2s[0] = 0        
-psi2s[1] = pow(dx, 1)
+    u1s[i] =  numerov(u1s[i-2], u1s[i-1], i, E[0,0], 0)
+    
+Iu = np.trapz(u1s**2, x )
+u1s = u1s / Iu**0.5
+
+u1p[0] = 0
+u1p[1] = pow(dx, 2)
 for i in range(2, Nx, 1):
-      psi2s[i] = numerov(psi2s[i-2], psi2s[i-1], i, Es[1,0] , 0)
-      
-psi3s = np.zeros(Nx)
-psi3s[0] = 0        
-psi3s[1] = pow(dx, 1)
+    u1p[i] = numerov(u1p[i-2], u1p[i-1], i, E[0,1], 1)  
+Iu = np.trapz(u1p**2, x )
+u1p = u1p / Iu**0.5
+
+
+u1d[0] = 0
+u1d[1] = pow(dx, 3)
 for i in range(2, Nx, 1):
-      psi3s[i] = numerov(psi3s[i-2], psi3s[i-1], i, Es[2,0] , 0)
-      
-psi4s = np.zeros(Nx)
-psi4s[0] = 0        
-psi4s[1] = pow(dx, 1)
+    u1d[i] = numerov(u1d[i-2], u1d[i-1], i, E[0,2], 2)
+Iu = np.trapz(u1d**2, x )
+u1d = u1d / Iu**0.5
+
+u2s[0] = 0
+u2s[1] = pow(dx, 1)
 for i in range(2, Nx, 1):
-      psi4s[i] = numerov(psi4s[i-2], psi4s[i-1], i, Es[3,0] , 0)
-      
-psi2p = np.zeros(Nx)
-psi2p[0] = 0        
-psi2p[1] = pow(dx, 2)
-for i in range(2, Nx, 1):
-      psi2p[i] = numerov(psi2p[i-2], psi2p[i-1], i, Es[1,1] , 1)
-      
-psi3p = np.zeros(Nx)
-psi3p[0] = 0        
-psi3p[1] = pow(dx, 2)
-for i in range(2, Nx, 1):
-      psi3p[i] = numerov(psi3p[i-2], psi3p[i-1], i, Es[2,1] , 1)
+    u2s[i] = numerov(u2s[i-2], u2s[i-1], i, E[1,0], 0)
+Iu = np.trapz(u2s**2, x )
+u2s = u2s / Iu**0.5   
+
+for i in range(1,Nx):        
+    R1s[i] = (u1s[i]/x[i])**2
+    R1p[i] = (u1p[i]/x[i])**2 
+    R1d[i] = (u1d[i]/x[i])**2
+    R2s[i] = (u2s[i]/x[i])**2
 
 
 
-#with the correct normalization
-psi1s = normalisation(x, psi1s)
-psi2s= normalisation(x, psi2s)
-psi3s= normalisation(x, psi3s)
-psi4s= normalisation(x, psi4s)
-psi2p= normalisation(x, psi2p)
-psi3p= normalisation(x, psi3p)
-
-
-#building the density
-rho1s = normalisation_density(rhoconstr(psi1s),2)
-rho2s = normalisation_density(rhoconstr(psi2s),2)
-rho3s = normalisation_density(rhoconstr(psi3s),2)
-rho4s = normalisation_density(rhoconstr(psi4s),2)
-rho2p = normalisation_density(rhoconstr(psi2p),6)
-rho3p = normalisation_density(rhoconstr(psi3p),6)
-
-#denisty plot
-rho = rho1s + rho2s + rho2p + rho3s + rho3p
-#rho = normalisation_density(rho,10)
-
-I=0
-for i in range(1,Nx,1):
-    I += rho[i] * dx#*4*m.pi*x[i]**2
-
-fig1 = plt.figure()
-plt.plot(x[0:int(17/dx)], rho[0:int(17/dx)], linewidth=0.9, label = "total")
-# plt.plot(x[0:int(14/dx)], rho1s[0:int(14/dx)], linewidth=0.9, label = "1s")
-# plt.plot(x[0:int(14/dx)], rho2s[0:int(14/dx)], linewidth=0.9, label = "2s")
-# plt.plot(x[0:int(14/dx)], rho3s[0:int(14/dx)], linewidth=0.9, label = "3s")
-# # plt.plot(x[0:int(14/dx)], rho4s[0:int(14/dx)], linewidth=0.9, label = "4s")
-# plt.plot(x[0:int(14/dx)], rho2p[0:int(14/dx)], linewidth=0.9, label = "2p")
-# plt.plot(x[0:int(14/dx)], rho3p[0:int(14/dx)], linewidth=0.9, label = "3p")
-plt.legend()
-plt.title("Electron density for K")
-# plt.axvline(Rc, color = "grey")
-plt.savefig("rho_19_el.png", dpi=300)
 
 # WF figure
 fig = plt.figure()
-plt.plot(x[0:int(17/dx)], psi1s[0:int(17/dx)], linewidth=0.9, label="1s")
-plt.plot(x[0:int(17/dx)], psi2s[0:int(17/dx)], linewidth=0.9, label ="2s")
-plt.plot(x[0:int(17/dx)], psi2p[0:int(17/dx)], linewidth=0.9, label="2p")
-plt.plot(x[0:int(17/dx)], psi3p[0:int(17/dx)], linewidth=0.9, label="3p")
-plt.plot(x[0:int(17/dx)], psi3s[0:int(17/dx)], linewidth=0.9, label="3s")
+plt.plot(x[1:int(L/dx)], R1s[1:int(L/dx)], linewidth=0.9, label="1s")
+plt.plot(x[1:int(L/dx)], R1p[1:int(L/dx)], linewidth=0.9, label ="1p")
+plt.plot(x[1:int(L/dx)], R1d[1:int(L/dx)], linewidth=0.9, label="1d")
+plt.plot(x[1:int(L/dx)], R2s[1:int(L/dx)], linewidth=0.9, label="2s")
+# plt.plot(x[0:int(L/dx)], psi3s[0:int(L/dx)], linewidth=0.9, label="3s")
 # plt.plot(x[0:int(14/dx)], psi4s[0:int(14/dx)], linewidth=0.9, label="4s")
 plt.legend()
 plt.title("Wavefunctions")
 #plt.axvline(Rc, color = "grey")
 plt.savefig("WF_19_el.png", dpi=300)
 
-#figure of potential with levels
+
+
+rho = rhoconstruct(R1s, x, 0) + rhoconstruct(R1p, x, 1) + rhoconstruct(R1d, x, 2) +  rhoconstruct(R2s, x, 0)
+
+Ir = np.trapz(rho*x**2*4*m.pi, x )
+
+
 V0 = np.zeros(Nx)
 
-for i in range(0, Nx):
-    V0[i] = coulomb(x[i])  
+for i in range(1, Nx):
+    V0[i] = coulomb(x[i])
 
-fig2 = plt.figure()
-plt.plot(x, V0, linewidth=0.9)
-plt.title("Potential")
-plt.axhline(Es[0,0] , color="green", linestyle="-.", label="1s", linewidth=0.9)
-plt.axhline(Es[1,0] , color="blue", linestyle="-.", label="2s", linewidth=0.9)
-plt.axhline(Es[1,1] , color="orange", linestyle="-.", label="2p", linewidth=0.9)
-plt.axhline(Es[2,0] , color="red", linestyle="-.", label="3s", linewidth=0.9)
-plt.axhline(Es[2,1] , color="cyan", linestyle="-.", label="3p", linewidth=0.9)
-plt.axhline(Es[3,0] , color="black", linestyle="-.", label="4s", linewidth=0.9)
-plt.axhline(Es[3,1] , color="brown", linestyle="-.", label="4p", linewidth=0.9)
+
+
+fig1 = plt.figure()
+plt.plot(x[1:int(L/dx)], rho[1:int(L/dx)], linewidth=0.9, label = "total")
+# plt.plot(x[2:int(Ldraw/dx)], normalisation(x, rhoconstruct(u1s, x, 0),0)[2:int(Ldraw/dx)], linewidth=0.9, label = "1s")
+# plt.plot(x[2:int(Ldraw/dx)], normalisation(x, rhoconstruct(u1p, x, 1),1)[2:int(Ldraw/dx)], linewidth=0.9, label = "1p")
+# plt.plot(x[2:int(Ldraw/dx)], normalisation(x, rhoconstruct(u1d, x, 2),2)[2:int(Ldraw/dx)], linewidth=0.9, label = "1d")
+# plt.plot(x[2:int(Ldraw/dx)], normalisation(x, rhoconstruct(u2s, x, 0),0)[2:int(Ldraw/dx)], linewidth=0.9, label = "2s")
+# plt.plot(x[0:int(14/dx)], rho2p[0:int(14/dx)], linewidth=0.9, label = "2p")
+#plt.plot(x[2:int(L/dx)], V0[2:int(L/dx)], linewidth=0.9)
+# # plt.plot(x[0:int(14/dx)], rho3p[0:int(14/dx)], linewidth=0.9, label = "3p")
 plt.legend()
-plt.savefig("Pot_20_el.png", dpi=300)   
+plt.title("Electron density for Na")
+plt.axvline(Rc, color = "grey")
+plt.savefig("rho_19_el.png", dpi=300)
+
+
+# # WF figure
+# fig = plt.figure()
+# plt.plot(x[2:int(L/dx)], u1s[2:int(L/dx)], linewidth=0.9, label="1s")
+# plt.plot(x[2:int(L/dx)], u1p[2:int(L/dx)], linewidth=0.9, label ="1p")
+# plt.plot(x[2:int(L/dx)], u1d[2:int(L/dx)], linewidth=0.9, label="1d")
+# plt.plot(x[2:int(L/dx)], u2s[2:int(L/dx)], linewidth=0.9, label="2s")
+# # plt.plot(x[0:int(L/dx)], psi3s[0:int(L/dx)], linewidth=0.9, label="3s")
+# # plt.plot(x[0:int(14/dx)], psi4s[0:int(14/dx)], linewidth=0.9, label="4s")
+# plt.legend()
+# plt.title("Wavefunctions")
+# #plt.axvline(Rc, color = "grey")
+# plt.savefig("WF_19_el.png", dpi=300)
+
+# #figure of potential with levels
+# V0 = np.zeros(Nx)
+
+# for i in range(1, Nx):
+#     V0[i] = coulomb(x[i])  
+
+# fig2 = plt.figure()
+# plt.plot(x[2:int(L/dx)], V0[2:int(L/dx)], linewidth=0.9)
+# plt.title("Potential")
+# plt.axhline(E[0,0] , color="green", linestyle="-.", label="1s", linewidth=0.9)
+# plt.axhline(E[0,1] , color="blue", linestyle="-.", label="1p", linewidth=0.9)
+# plt.axhline(E[0,2] , color="orange", linestyle="-.", label="1d", linewidth=0.9)
+# plt.axhline(E[1,0] , color="red", linestyle="-.", label="1f", linewidth=0.9)
+# # plt.axhline(E[1,0] , color="cyan", linestyle="-.", label="2s", linewidth=0.9)
+# # plt.axhline(E[1,1] , color="black", linestyle="-.", label="2p", linewidth=0.9)
+# # plt.axhline(E[1,2] , color="brown", linestyle="-.", label="2d", linewidth=0.9)
+# plt.legend()
+# plt.savefig("Pot_20_el.png", dpi=300)   
     
     
     
